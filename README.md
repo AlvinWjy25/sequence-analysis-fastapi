@@ -137,3 +137,9 @@ tests/test_api.py::test_invalid_frame_is_rejected[4] PASSED                     
 ============================================================ 24 passed in 0.77s ============================================================
 (kalbe_env) PS C:\Users\Alvin\Music\kalbe_project> 
 ```
+
+# 6. Curl Alignment & Translate
+
+![alt-text](adds/curl_alignment.png)
+
+![alt-text](adds/curl_translate.png)
