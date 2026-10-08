@@ -6,9 +6,10 @@ print(ROOT_DIR)
 sys.path.insert(0, str(ROOT_DIR))
 
 from fastapi import (FastAPI, UploadFile,  
-                     File, HTTPException, status)
+                     File, Form, HTTPException, status)
 
 from app.services.alignment import align_sequences, FASTAValidationError, parse_and_validate_fasta
+from app.services.translate import translate
 from config.config_script import REFERENCE_DIR
 
 
@@ -89,3 +90,30 @@ async def align_fasta(file: UploadFile = File(...)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Uploaded file must be a valid text FASTA file.",
         )
+
+@app.post("/api/translate")
+async def align_fasta(file: UploadFile = File(...), frame: int = Form(1)):
+    if not file or not file.filename:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Missing file."
+        )
+
+    try:
+        content = await file.read()
+        fasta_content = content.decode("utf-8")
+        
+        # Use the reference sequence stored in memory (No disk read needed!)
+        result = translate(
+            fasta_content=fasta_content,
+            reference_id=reference_store["id"],
+            reference_seq=reference_store["sequence"],
+            frame=frame,
+        )
+        
+        return result
+    
+    except UnicodeDecodeError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Uploaded file must be a valid text FASTA file.",
+            )
